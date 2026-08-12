@@ -215,8 +215,36 @@
     cursor:pointer;padding:4px 0;margin-bottom:6px;font-family:inherit;
   }
   .back-to-filter:hover{text-decoration:underline}
+  .model-pick{display:grid;gap:8px;margin-top:6px}
+  .model-pick-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:16px 18px;cursor:pointer;transition:.12s;font-family:inherit;text-align:left}
+  .model-pick-btn:hover{border-color:var(--green);background:var(--green-soft)}
+  .mp-name{font-size:16px;font-weight:700;color:var(--ink)}
+  .mp-price{font-size:14px;font-weight:700;color:var(--green-dark);white-space:nowrap}
 
   /* Detalhamento da conta do preço */
+  .intel-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .intel-add-btn{width:100%;border:none;background:var(--green);color:var(--green-ink);font-weight:800;font-size:16px;padding:15px;border-radius:16px;cursor:pointer;font-family:inherit;margin-bottom:18px}
+  .intel-add-btn:active{transform:scale(.98)}
+  .intel-cat-title{font-size:12px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px}
+  .intel-items{display:flex;flex-direction:column;gap:8px}
+  .intel-item{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  .intel-item.open{border-color:var(--green)}
+  .intel-item-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;background:none;border:none;font-family:inherit;text-align:left}
+  .intel-item-head:hover{background:var(--green-soft)}
+  .ii-info{display:flex;flex-direction:column;gap:2px}
+  .ii-name{font-size:15px;font-weight:700;color:var(--ink)}
+  .ii-detail{font-size:13px;color:var(--gray)}
+  .ii-price{font-size:18px;font-weight:800;color:var(--green-dark);white-space:nowrap}
+  .intel-budget{padding:6px 16px 16px;border-top:1px solid var(--line)}
+  .intel-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .intel-actions .calc-copy{flex:1;margin-top:0;min-width:150px}
+  .intel-mini{border:1.5px solid var(--line);background:#fff;color:var(--gray);font-weight:700;font-size:14px;padding:12px 16px;border-radius:14px;cursor:pointer;font-family:inherit}
+  .intel-mini:hover{border-color:var(--green);color:var(--green-dark)}
+  .intel-mini.danger:hover{border-color:#E5484D;color:#E5484D}
+  .intel-field{margin-bottom:14px}
+  .intel-field label{display:block;font-size:13px;font-weight:700;color:var(--gray);margin-bottom:6px}
+  .intel-field input, .intel-field select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;outline:none}
+  .intel-field input:focus, .intel-field select:focus{border-color:var(--green)}
   .calc-modal{max-width:520px}
   .calc-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .calc-head h3{margin:0}
@@ -539,6 +567,22 @@
   .welcome-cta svg{transition:transform .15s}
   .welcome-cta:hover svg{transform:translateX(3px)}
 
+  /* Seleção de marca (Apple / Intelbras) */
+  .brand-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(92vw,520px);opacity:0;animation:wUp .6s .48s ease forwards}
+  @media(max-width:430px){ .brand-pick{grid-template-columns:1fr} }
+  .brand-card{
+    display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
+    background:#fff;border:2px solid var(--line);border-radius:20px;padding:26px 18px;transition:.15s;
+  }
+  .brand-card:hover{transform:translateY(-3px);border-color:var(--green);box-shadow:0 12px 30px rgba(0,0,0,.08)}
+  .brand-card:active{transform:translateY(0) scale(.98)}
+  .brand-card .bc-icon{font-size:38px;line-height:1;height:44px;display:flex;align-items:center}
+  .brand-card .bc-icon svg{width:40px;height:44px}
+  .brand-card .bc-name{font-size:21px;font-weight:800;color:var(--ink)}
+  .brand-card .bc-desc{font-size:13px;color:var(--gray);text-align:center;line-height:1.3}
+  .brand-card.intelbras:hover{border-color:#0A5FBF;box-shadow:0 12px 30px rgba(10,95,191,.12)}
+  .brand-card.intelbras .bc-name{color:#0A5FBF}
+
   .welcome-quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:26px;opacity:0;animation:wUp .6s .58s ease forwards}
   .wq-btn{
     border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:600;font-size:14px;
@@ -570,12 +614,20 @@
       <img class="welcome-logo-img" data-logo src="" alt="iTronic — Centro Especializado Apple">
 
       <h1 class="welcome-greet" id="welcomeGreet">Bom dia</h1>
-      <p class="welcome-sub">Pronto pra atender rápido? Consulte preços e monte orçamentos em segundos.</p>
+      <p class="welcome-sub">Escolha a linha de produtos para começar:</p>
 
-      <button class="welcome-cta" id="welcomeStart">
-        Começar atendimento
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <div class="brand-pick">
+        <button class="brand-card apple" id="pickApple">
+          <span class="bc-icon"><svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M17.05 12.04c-.03-2.75 2.25-4.07 2.35-4.13-1.28-1.87-3.28-2.13-3.99-2.16-1.7-.17-3.31 1-4.17 1-.86 0-2.19-.98-3.6-.95-1.85.03-3.56 1.08-4.51 2.73-1.92 3.34-.49 8.28 1.38 10.99.91 1.33 2 2.81 3.42 2.76 1.37-.06 1.89-.89 3.55-.89 1.66 0 2.13.89 3.58.86 1.48-.03 2.42-1.35 3.33-2.68 1.05-1.54 1.48-3.03 1.5-3.11-.03-.01-2.88-1.11-2.91-4.39l-.06.02zM14.6 4.13c.76-.92 1.27-2.2 1.13-3.47-1.09.04-2.41.73-3.19 1.64-.7.81-1.31 2.11-1.15 3.35 1.22.09 2.46-.62 3.21-1.52z"/></svg></span>
+          <span class="bc-name">Apple</span>
+          <span class="bc-desc">Preços, fornecedores e orçamentos</span>
+        </button>
+        <button class="brand-card intelbras" id="pickIntelbras">
+          <span class="bc-icon">📡</span>
+          <span class="bc-name">Intelbras</span>
+          <span class="bc-desc">Cadastre e monte orçamentos</span>
+        </button>
+      </div>
 
       <div class="welcome-quick" id="welcomeQuick"></div>
     </div>
@@ -636,6 +688,56 @@
     <div class="cfg-grid" id="cfgGrid"></div>
   </div>
 
+  <div class="view" id="viewIntelbras" hidden>
+    <div class="intel-head">
+      <button class="cat-back" id="intelBack">‹ Voltar</button>
+      <div class="cat-title">📡 Intelbras</div>
+    </div>
+    <button class="intel-add-btn" id="intelAddBtn">+ Adicionar produto</button>
+    <div id="intelList"></div>
+  </div>
+
+</div>
+
+<!-- Modal cadastrar produto Intelbras -->
+<div class="modal-bg" id="intelModal" hidden>
+  <div class="modal">
+    <div class="calc-head">
+      <h3 id="intelModalTitle">Novo produto</h3>
+      <button class="modal-x" id="intelClose">✕</button>
+    </div>
+    <div class="intel-field">
+      <label>Nome do produto</label>
+      <input id="intelName" type="text" placeholder="Ex: Câmera IM7 Full HD" autocomplete="off">
+    </div>
+    <div class="intel-field">
+      <label>Categoria</label>
+      <select id="intelCat">
+        <option value="Câmeras">Câmeras</option>
+        <option value="DVR/NVR">DVR / NVR</option>
+        <option value="Roteadores">Roteadores</option>
+        <option value="Switches">Switches</option>
+        <option value="Alarmes">Alarmes</option>
+        <option value="Interfones">Interfones / Vídeo porteiro</option>
+        <option value="Fechaduras">Fechaduras</option>
+        <option value="Energia">Energia / Nobreak</option>
+        <option value="Cabos">Cabos / Acessórios</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+    <div class="intel-field">
+      <label>Detalhes (opcional)</label>
+      <input id="intelDetail" type="text" placeholder="Ex: 2MP, visão noturna, IP67" autocomplete="off">
+    </div>
+    <div class="intel-field">
+      <label>Preço de custo (o que você paga)</label>
+      <div class="calc-input-row"><span>R$</span><input id="intelCost" type="number" inputmode="numeric" placeholder="0" autocomplete="off"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="intelCancel">Cancelar</button>
+      <button class="btn-primary" id="intelSave">Salvar produto</button>
+    </div>
+  </div>
 </div>
 
 <button class="exit-atend" id="exitAtend">✕ Sair do Modo Atendimento</button>
@@ -790,6 +892,7 @@ function load(){
       d.suppliers = Array.isArray(d.suppliers) ? d.suppliers : base.suppliers;
       d.products  = Array.isArray(d.products)  ? d.products  : base.products;
       d.favorites = Array.isArray(d.favorites) ? d.favorites : base.favorites;
+      d.intelbras = Array.isArray(d.intelbras) ? d.intelbras : base.intelbras;
       d.dict = (d.dict && typeof d.dict==="object") ? d.dict : {};
       d.cfg = {...DEFAULT_CFG, ...(d.cfg||{})};
       d.cfg.juros = {...DEFAULT_CFG.juros, ...((d.cfg&&d.cfg.juros)||{})};
@@ -810,6 +913,7 @@ function seed(){
     products: [],
     cfg: {...DEFAULT_CFG, juros:{...DEFAULT_CFG.juros}},
     favorites: ["17 pro max","17 pro","16 pro","17","16","15"],
+    intelbras: [],
     dict: {}
   };
 }
@@ -1373,7 +1477,7 @@ const $$ = s=>Array.from(document.querySelectorAll(s));
 function openModal(id){ const el=document.getElementById(id); if(el){ el.hidden=false; document.body.classList.add("modal-open"); } }
 function closeModal(id){ const el=document.getElementById(id); if(el){ el.hidden=true; } syncModalOpen(); }
 function syncModalOpen(){
-  const anyOpen = ["importModal","viewListModal","suppModal","listModal","confirmModal","calcModal"].some(i=>{ const e=document.getElementById(i); return e && !e.hidden; });
+  const anyOpen = ["importModal","viewListModal","suppModal","listModal","confirmModal","calcModal","intelModal"].some(i=>{ const e=document.getElementById(i); return e && !e.hidden; });
   document.body.classList.toggle("modal-open", anyOpen);
 }
 
@@ -1391,6 +1495,7 @@ function askConfirm(msg, onYes, opts){
 
 let currentProduct = null;
 let liveMatches = [];  // variações encontradas na busca ao vivo (pra trocar rápido)
+let filterModel = null;// modelo escolhido quando a busca traz vários (ex: "iPhone 17 Pro Max")
 let filterCap = null;  // capacidade escolhida no filtro (ex: "256GB")
 let filterColor = null;// cor escolhida no filtro
 let filterCond = null; // condição escolhida (Novo / CPO)
@@ -1526,7 +1631,7 @@ function doSearch(q){
   $("#favBlock").hidden = true;
   liveMatches = res;
   // reinicia filtros a cada nova busca
-  filterCap = null; filterColor = null; filterCond = null;
+  filterModel = null; filterCap = null; filterColor = null; filterCond = null;
   // se só há uma variação, abre direto; senão, mostra a pré-seleção
   if(res.length===1){
     currentProduct = res[0];
@@ -1540,26 +1645,59 @@ function doSearch(q){
 // aplica os filtros atuais sobre liveMatches
 function filteredMatches(){
   return liveMatches.filter(m=>
+    (!filterModel || m.name===filterModel) &&
     (!filterCap   || m.capacity===filterCap) &&
     (!filterColor || m.color===filterColor) &&
     (!filterCond  || m.condition===filterCond)
   );
 }
 
-// mostra a tela de PRÉ-SELEÇÃO: escolher capacidade, cor e condição antes do preço
+// mostra a tela de PRÉ-SELEÇÃO: escolher modelo (se vários), capacidade, cor e condição
 function renderFilter(){
-  const g0 = liveMatches[0];
-  // valores disponíveis (só os que existem pra esse modelo), na ordem certa
+  // modelos distintos que a busca trouxe
+  const modelos = Array.from(new Set(liveMatches.map(m=>m.name)));
+  // se há vários modelos e nenhum escolhido ainda, mostra a escolha de modelo primeiro
+  if(modelos.length>1 && !filterModel){
+    const g0 = liveMatches[0];
+    // ordena modelos: mais curto primeiro (17 antes de 17 Pro antes de 17 Pro Max)
+    modelos.sort((a,b)=> a.length-b.length || a.localeCompare(b));
+    let html = `<div class="filter-head">
+        <div class="prod-title">${g0.emoji} Qual modelo?</div>
+        <div class="filter-hint">Encontramos vários. Escolha um:</div>
+      </div>
+      <div class="model-pick">
+        ${modelos.map(nm=>{
+          // menor preço desse modelo pra mostrar de referência
+          const offers = liveMatches.filter(m=>m.name===nm);
+          const min = Math.min.apply(null, offers.map(o=>sellPrice(o.cost)));
+          return `<button class="model-pick-btn" data-model="${nm.replace(/"/g,'&quot;')}">
+            <span class="mp-name">${nm}</span>
+            <span class="mp-price">a partir de R$ ${fmt(min)}</span>
+          </button>`;
+        }).join("")}
+      </div>`;
+    $("#result").hidden = false;
+    $("#result").innerHTML = html;
+    $("#result").querySelectorAll(".model-pick-btn").forEach(el=>{
+      el.onclick = ()=>{ filterModel = el.dataset.model; filterCap=null; filterColor=null; renderFilter(); };
+    });
+    return;
+  }
+
+  // a partir daqui, trabalha só com os itens do modelo escolhido (ou o único modelo)
+  const base = filterModel ? liveMatches.filter(m=>m.name===filterModel) : liveMatches;
+  const g0 = base[0];
   const capRank = c=>({ "64GB":1,"128GB":2,"256GB":3,"512GB":4,"1TB":5,"2TB":6 }[c]||9);
-  const caps = Array.from(new Set(liveMatches.map(m=>m.capacity).filter(Boolean))).sort((a,b)=>capRank(a)-capRank(b));
-  const cores = Array.from(new Set(liveMatches.map(m=>m.color).filter(Boolean))).sort();
-  const conds = Array.from(new Set(liveMatches.map(m=>m.condition).filter(Boolean)));
+  const caps = Array.from(new Set(base.map(m=>m.capacity).filter(Boolean))).sort((a,b)=>capRank(a)-capRank(b));
+  const conds = Array.from(new Set(base.map(m=>m.condition).filter(Boolean)));
   const hasCPO = conds.length>1;
 
-  // depois de aplicar os filtros, quantos sobram
   const restantes = filteredMatches();
 
   const btn = (txt, active, kind, val)=>`<button class="fchip ${active?'on':''}" data-fkind="${kind}" data-fval="${val}">${txt}</button>`;
+
+  // botão pra voltar à escolha de modelo (só quando havia vários)
+  const voltarModelo = (modelos.length>1)? `<button class="back-to-filter" id="backToModel">‹ Trocar modelo</button>`:"";
 
   let capBlock = caps.length? `
     <div class="filter-group">
@@ -1577,9 +1715,9 @@ function renderFilter(){
       </div>
     </div>`:"";
 
-  // cores: mostra só as disponíveis considerando a capacidade/condição já escolhida
+  // cores: só as disponíveis considerando capacidade/condição já escolhida (dentro do modelo)
   const coresDisp = Array.from(new Set(
-    liveMatches.filter(m=>
+    base.filter(m=>
       (!filterCap||m.capacity===filterCap) && (!filterCond||m.condition===filterCond)
     ).map(m=>m.color).filter(Boolean)
   )).sort();
@@ -1593,6 +1731,7 @@ function renderFilter(){
 
   $("#result").hidden = false;
   $("#result").innerHTML = `
+    ${voltarModelo}
     <div class="filter-head">
       <div class="prod-title">${g0.emoji} ${g0.name}</div>
       <div class="filter-hint">Escolha as opções para ver o preço</div>
@@ -1613,16 +1752,17 @@ function renderFilter(){
     </div>`:""}
   `;
 
+  const bm = $("#backToModel");
+  if(bm) bm.onclick = ()=>{ filterModel=null; filterCap=null; filterColor=null; filterCond=null; renderFilter(); };
+
   // liga os botões de filtro
   $("#result").querySelectorAll(".fchip").forEach(el=>{
     el.onclick = ()=>{
       const kind=el.dataset.fkind, val=el.dataset.fval;
-      // toggle: clicar de novo desmarca
       if(kind==="cap")   filterCap   = (filterCap===val? null:val);
       if(kind==="color") filterColor = (filterColor===val? null:val);
       if(kind==="cond")  filterCond  = (filterCond===val? null:val);
       const rest = filteredMatches();
-      // se sobrou exatamente 1, abre o resultado
       if(rest.length===1){ currentProduct = rest[0]; renderResult(); }
       else renderFilter();
     };
@@ -1998,9 +2138,143 @@ function renderCalcResult(){
 }
 
 /* ============================================================
-   FORNECEDORES
+   INTELBRAS — cadastro manual + orçamento
    ============================================================ */
-let importingSupplierId = null;
+let intelEditId = null;
+let intelExpanded = null; // id do produto com orçamento aberto
+
+function renderIntelbras(){
+  const box = $("#intelList");
+  const items = DB.intelbras || [];
+  if(items.length===0){
+    box.innerHTML = `<div class="empty-hint" style="padding:36px 20px">Nenhum produto Intelbras cadastrado.<br><b>Toque em "+ Adicionar produto"</b> para começar.</div>`;
+    return;
+  }
+  // agrupa por categoria
+  const cats = {};
+  items.forEach(p=>{ (cats[p.cat] = cats[p.cat]||[]).push(p); });
+  let html = "";
+  Object.keys(cats).forEach(cat=>{
+    html += `<div class="intel-cat-title">${cat}</div><div class="intel-items">`;
+    cats[cat].forEach(p=>{
+      const pix = pixPrice(sellPrice(p.cost));
+      const aberto = intelExpanded===p.id;
+      html += `<div class="intel-item ${aberto?'open':''}">
+        <button class="intel-item-head" data-id="${p.id}">
+          <span class="ii-info">
+            <span class="ii-name">${p.name}</span>
+            ${p.detail?`<span class="ii-detail">${p.detail}</span>`:""}
+          </span>
+          <span class="ii-price">R$ ${fmt(pix)}</span>
+        </button>
+        ${aberto? intelBudgetHtml(p) : ""}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  box.innerHTML = html;
+  // clicar no produto abre/fecha o orçamento
+  box.querySelectorAll(".intel-item-head").forEach(el=>{
+    el.onclick = ()=>{
+      intelExpanded = (intelExpanded===el.dataset.id)? null : el.dataset.id;
+      renderIntelbras();
+    };
+  });
+  // botões dentro do orçamento aberto
+  box.querySelectorAll("[data-intel-edit]").forEach(el=>{
+    el.onclick = ()=> openIntelModal(el.dataset.intelEdit);
+  });
+  box.querySelectorAll("[data-intel-del]").forEach(el=>{
+    el.onclick = ()=>{
+      const p = DB.intelbras.find(x=>x.id===el.dataset.intelDel);
+      askConfirm(`Remover "${p?p.name:'este produto'}" da lista Intelbras?`, ()=>{
+        DB.intelbras = DB.intelbras.filter(x=>x.id!==el.dataset.intelDel);
+        save(); intelExpanded=null; renderIntelbras(); toast("Produto removido");
+      }, {title:"Remover produto?", yesText:"Remover"});
+    };
+  });
+  box.querySelectorAll("[data-intel-copy]").forEach(el=>{
+    el.onclick = ()=> intelCopy(el.dataset.intelCopy);
+  });
+}
+
+// monta o bloco de orçamento (PIX/débito/crédito/parcelas) de um produto
+function intelBudgetHtml(p){
+  const sell = sellPrice(p.cost);
+  const pix = pixPrice(sell), debito = debitPrice(sell), credito1x = credit1xPrice(sell);
+  let parcelHtml = "";
+  for(let n=2; n<=21; n++){
+    const pc = calcParcel(sell, n, 0, false);
+    parcelHtml += `<div class="calc-parcel"><b>${n}x R$ ${fmt(pc.parcela)}</b><span>total R$ ${fmt(pc.total)}</span></div>`;
+  }
+  return `<div class="intel-budget">
+    <div class="calc-pay">
+      <div class="calc-pay-card pix"><span class="lbl">💚 PIX / à vista</span><span class="val">R$ ${fmt(pix)}</span></div>
+      <div class="calc-pay-card"><span class="lbl">💳 Débito</span><span class="val">R$ ${fmt(debito)}</span></div>
+      <div class="calc-pay-card"><span class="lbl">💳 Crédito 1x</span><span class="val">R$ ${fmt(credito1x)}</span></div>
+    </div>
+    <div class="section-title" style="margin-top:6px">Parcelado no crédito</div>
+    <div class="calc-parcels">${parcelHtml}</div>
+    <div class="intel-actions">
+      <button class="calc-copy" data-intel-copy="${p.id}">📋 Copiar orçamento</button>
+      <button class="intel-mini" data-intel-edit="${p.id}">✏️ Editar</button>
+      <button class="intel-mini danger" data-intel-del="${p.id}">🗑️ Excluir</button>
+    </div>
+  </div>`;
+}
+
+function openIntelModal(id){
+  intelEditId = id || null;
+  const p = id ? DB.intelbras.find(x=>x.id===id) : null;
+  $("#intelModalTitle").textContent = p ? "Editar produto" : "Novo produto";
+  $("#intelName").value = p ? p.name : "";
+  $("#intelCat").value = p ? p.cat : "Câmeras";
+  $("#intelDetail").value = p ? (p.detail||"") : "";
+  $("#intelCost").value = p ? p.cost : "";
+  openModal("intelModal");
+  setTimeout(()=>$("#intelName").focus(), 100);
+}
+
+function saveIntel(){
+  const name = $("#intelName").value.trim();
+  const cost = parseInt($("#intelCost").value||"0", 10) || 0;
+  if(!name){ toast("Digite o nome do produto"); return; }
+  if(cost < 1){ toast("Digite o preço de custo"); return; }
+  const dados = {
+    name, cost,
+    cat: $("#intelCat").value,
+    detail: $("#intelDetail").value.trim()
+  };
+  if(intelEditId){
+    const p = DB.intelbras.find(x=>x.id===intelEditId);
+    if(p) Object.assign(p, dados);
+  } else {
+    DB.intelbras.push({ id: Math.random().toString(36).slice(2), ...dados });
+  }
+  save();
+  closeModal("intelModal");
+  renderIntelbras();
+  toast(intelEditId ? "Produto atualizado" : "Produto adicionado");
+}
+
+function intelCopy(id){
+  const p = DB.intelbras.find(x=>x.id===id);
+  if(!p) return;
+  const sell = sellPrice(p.cost);
+  const pix = pixPrice(sell), debito = debitPrice(sell), credito1x = credit1xPrice(sell);
+  const p10 = calcParcel(sell, 10, 0, false), p12 = calcParcel(sell, 12, 0, false);
+  let txt = `📡 ${p.name}\n`;
+  if(p.detail) txt += `${p.detail}\n`;
+  txt += `\n💚 PIX / à vista: R$ ${fmt(pix)}\n`;
+  txt += `💳 Débito: R$ ${fmt(debito)}\n`;
+  txt += `💳 Crédito 1x: R$ ${fmt(credito1x)}\n`;
+  txt += `💳 10x de R$ ${fmt(p10.parcela)}\n`;
+  txt += `💳 12x de R$ ${fmt(p12.parcela)}\n`;
+  txt += `\n✅ Produto disponível.`;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast("Orçamento copiado ✅")).catch(()=>fallbackCopy(txt,()=>toast("Copiado ✅")));
+  } else fallbackCopy(txt, ()=>toast("Copiado ✅"));
+}
 let viewingSupplierId = null;
 
 function renderSuppliers(){
@@ -2351,10 +2625,12 @@ function showView(v){
   $("#viewSearch").hidden = v!=="search";
   $("#viewSuppliers").hidden = v!=="suppliers";
   $("#viewConfig").hidden = v!=="config";
+  $("#viewIntelbras").hidden = v!=="intelbras";
   $("#btnFornecedores").classList.toggle("on", v==="suppliers");
   $("#btnConfig").classList.toggle("on", v==="config");
   if(v==="suppliers") renderSuppliers();
   if(v==="config") renderConfig();
+  if(v==="intelbras") renderIntelbras();
   if(v==="search"){ renderCategories(); $("#searchInput").focus(); }
 }
 
@@ -2488,7 +2764,14 @@ function showWelcome(){
 }
 function hideWelcome(){ $("#viewWelcome").hidden = true; }
 
-$("#welcomeStart").onclick = ()=>{ hideWelcome(); showView("search"); setTimeout(()=>$("#searchInput").focus(),100); };
+$("#pickApple").onclick = ()=>{ hideWelcome(); showView("search"); setTimeout(()=>$("#searchInput").focus(),100); };
+$("#pickIntelbras").onclick = ()=>{ hideWelcome(); showView("intelbras"); };
+$("#intelBack").onclick = ()=>{ showWelcome(); };
+$("#intelAddBtn").onclick = ()=> openIntelModal(null);
+$("#intelClose").onclick = ()=> closeModal("intelModal");
+$("#intelCancel").onclick = ()=> closeModal("intelModal");
+$("#intelSave").onclick = saveIntel;
+$("#intelModal").onclick = e=>{ if(e.target.id==="intelModal") closeModal("intelModal"); };
 $("#brandHome").onclick = ()=>{ document.body.classList.remove("atendimento"); showWelcome(); };
 
 // abre na tela de boas-vindas
