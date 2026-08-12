@@ -931,7 +931,7 @@ window.addEventListener("error", function(ev){
    iTronic FastPrice  — estado + persistência (localStorage)
    ============================================================ */
 const LS_KEY = "itronic_fastprice_v2";
-const APP_VERSION = "10.1.1";
+const APP_VERSION = "10.2.0";
 let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após carregar)
 
 /* ============================================================
@@ -942,13 +942,13 @@ let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após 
    Assim que você colar as chaves certas, passa a sincronizar sozinho.
    ============================================================ */
 const FIREBASE_CONFIG = {
-  apiKey:            "COLE_AQUI_apiKey",
-  authDomain:        "COLE_AQUI_authDomain",
-  databaseURL:       "COLE_AQUI_databaseURL",
-  projectId:         "COLE_AQUI_projectId",
-  storageBucket:     "COLE_AQUI_storageBucket",
-  messagingSenderId: "COLE_AQUI_messagingSenderId",
-  appId:             "COLE_AQUI_appId"
+  apiKey:            "AIzaSyBT2CuDT7ASbBztWIeq9v5PBGbLnSdWO2A",
+  authDomain:        "itronic-fast-price.firebaseapp.com",
+  databaseURL:       "https://itronic-fast-price-default-rtdb.firebaseio.com",
+  projectId:         "itronic-fast-price",
+  storageBucket:     "itronic-fast-price.firebasestorage.app",
+  messagingSenderId: "398375931107",
+  appId:             "1:398375931107:web:63bde9595a181e66e189d6"
 };
 // "sala" compartilhada — você e o sócio precisam usar a MESMA palavra aqui
 const FIREBASE_SALA = "itronic-loja";
