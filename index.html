@@ -228,6 +228,25 @@
   .mp-price{font-size:14px;font-weight:700;color:var(--green-dark);white-space:nowrap}
 
   /* Detalhamento da conta do preço */
+  .catalog-modal{max-width:560px;max-height:90vh;display:flex;flex-direction:column}
+  .catalog-tools{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .catalog-tools input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none}
+  .catalog-tools input:focus{border-color:var(--green)}
+  .catalog-quick{display:flex;gap:8px}
+  .cq-btn{flex:1;border:1.5px solid var(--line);background:#fff;color:var(--gray);font-weight:700;font-size:13px;padding:9px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .cq-btn:hover{border-color:var(--green);color:var(--green-dark)}
+  .catalog-list{flex:1;overflow-y:auto;min-height:180px;max-height:48vh;margin:0 -4px;padding:0 4px}
+  .catalog-cat{font-size:12px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px}
+  .catalog-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:6px;cursor:pointer;transition:.1s}
+  .catalog-item.on{border-color:var(--green);background:var(--green-soft)}
+  .catalog-item input{width:20px;height:20px;accent-color:var(--green);flex:none}
+  .ci2-info{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+  .ci2-name{font-size:14px;font-weight:700;color:var(--ink)}
+  .ci2-sub{font-size:12px;color:var(--gray)}
+  .ci2-price{font-size:15px;font-weight:800;color:var(--green-dark);white-space:nowrap}
+  .catalog-foot{display:flex;align-items:center;gap:12px;padding-top:14px;margin-top:6px;border-top:1px solid var(--line)}
+  .catalog-foot #catalogCount{font-size:13px;color:var(--gray);font-weight:700;white-space:nowrap}
+  .catalog-foot .calc-copy{flex:1}
   .sync-dot{width:9px;height:9px;border-radius:50%;margin-left:8px;flex:none;transition:.2s}
   .sync-dot.offline{background:#C7C7CC}
   .sync-dot.connecting{background:#FFB020;animation:pulseDot 1s infinite}
@@ -570,8 +589,8 @@
     background:var(--green-soft);padding:7px 16px;border-radius:999px;margin-bottom:30px;
     opacity:0;animation:wUp .6s .05s ease forwards;
   }
-  .welcome-logo-img{width:min(78vw,320px);height:auto;margin-bottom:20px;opacity:0;animation:wUp .6s .15s ease forwards}
-  @media(max-width:400px){ .welcome-logo-img{width:80vw} }
+  .welcome-logo-img{width:min(52vw,200px);height:auto;margin-bottom:14px;opacity:0;animation:wUp .6s .15s ease forwards}
+  @media(max-width:400px){ .welcome-logo-img{width:54vw} }
 
   .welcome-greet{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px;opacity:0;animation:wUp .6s .28s ease forwards}
   @media(max-width:400px){ .welcome-greet{font-size:26px} }
@@ -589,22 +608,23 @@
   .welcome-cta:hover svg{transform:translateX(3px)}
 
   /* Seleção de marca (Apple / Intelbras) */
-  .brand-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(92vw,520px);opacity:0;animation:wUp .6s .48s ease forwards}
-  @media(max-width:430px){ .brand-pick{grid-template-columns:1fr} }
+  .brand-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(88vw,420px);opacity:0;animation:wUp .6s .48s ease forwards}
+  @media(max-width:430px){ .brand-pick{grid-template-columns:1fr 1fr} }
   .brand-card{
-    display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
-    background:#fff;border:2px solid var(--line);border-radius:20px;padding:26px 18px;transition:.15s;
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-family:inherit;
+    background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px 12px;transition:.15s;
   }
   .brand-card:hover{transform:translateY(-3px);border-color:var(--green);box-shadow:0 12px 30px rgba(0,0,0,.08)}
   .brand-card:active{transform:translateY(0) scale(.98)}
-  .brand-card .bc-icon{font-size:38px;line-height:1;height:44px;display:flex;align-items:center}
-  .brand-card .bc-icon svg{width:40px;height:44px}
-  .brand-card .bc-name{font-size:21px;font-weight:800;color:var(--ink)}
-  .brand-card .bc-desc{font-size:13px;color:var(--gray);text-align:center;line-height:1.3}
+  .brand-card .bc-icon{font-size:26px;line-height:1;height:30px;display:flex;align-items:center}
+  .brand-card .bc-icon svg{width:27px;height:30px}
+  .brand-card .bc-name{font-size:17px;font-weight:800;color:var(--ink)}
+  .brand-card .bc-desc{font-size:11px;color:var(--gray);text-align:center;line-height:1.25}
   .brand-card.intelbras:hover{border-color:#0A5FBF;box-shadow:0 12px 30px rgba(10,95,191,.12)}
   .brand-card.intelbras .bc-name{color:#0A5FBF}
 
   .welcome-quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:26px;opacity:0;animation:wUp .6s .58s ease forwards}
+  .version-tag{margin-top:16px;font-size:14px;font-weight:700;color:var(--green-dark);background:var(--green-soft);padding:6px 16px;border-radius:20px;opacity:0;animation:wUp .6s .54s ease forwards}
   .wq-btn{
     border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:600;font-size:14px;
     padding:9px 16px;border-radius:12px;cursor:pointer;transition:.12s;display:flex;align-items:center;gap:7px;
@@ -650,6 +670,8 @@
         </button>
       </div>
 
+      <div class="version-tag">Versão <span id="appVer"></span></div>
+
       <div class="welcome-quick" id="welcomeQuick"></div>
     </div>
 
@@ -687,6 +709,7 @@
       <div class="cat-grid" id="catGrid"></div>
 
       <button class="gen-list-btn" id="genListBtn">📄 Gerar lista de preços</button>
+      <button class="gen-list-btn" id="catalogBtn" style="margin-top:10px">📤 Enviar catálogo pro cliente</button>
       <button class="gen-list-btn" id="calcManualBtn" style="margin-top:10px">🧮 Calcular orçamento (valor manual)</button>
     </div>
 
@@ -840,6 +863,29 @@
   </div>
 </div>
 
+<!-- Modal catálogo pro cliente (marca produto por produto) -->
+<div class="modal-bg" id="catalogModal" hidden>
+  <div class="modal catalog-modal">
+    <div class="calc-head">
+      <h3>📤 Catálogo pro cliente</h3>
+      <button class="modal-x" id="catalogClose">✕</button>
+    </div>
+    <p class="sub">Marque os aparelhos que quer enviar. Depois toque em copiar e cole no WhatsApp.</p>
+    <div class="catalog-tools">
+      <input type="text" id="catalogSearch" placeholder="🔍 Filtrar aparelho..." autocomplete="off">
+      <div class="catalog-quick">
+        <button class="cq-btn" id="catAll">Marcar todos</button>
+        <button class="cq-btn" id="catNone">Limpar</button>
+      </div>
+    </div>
+    <div class="catalog-list" id="catalogList"></div>
+    <div class="catalog-foot">
+      <span id="catalogCount">0 selecionados</span>
+      <button class="calc-copy" id="catalogCopy" style="margin-top:0">📋 Copiar para WhatsApp</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- Modal de confirmação (substitui o confirm do navegador) -->
@@ -885,6 +931,7 @@ window.addEventListener("error", function(ev){
    iTronic FastPrice  — estado + persistência (localStorage)
    ============================================================ */
 const LS_KEY = "itronic_fastprice_v2";
+const APP_VERSION = "10.1.1";
 let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após carregar)
 
 /* ============================================================
@@ -1617,7 +1664,7 @@ const $$ = s=>Array.from(document.querySelectorAll(s));
 function openModal(id){ const el=document.getElementById(id); if(el){ el.hidden=false; document.body.classList.add("modal-open"); } }
 function closeModal(id){ const el=document.getElementById(id); if(el){ el.hidden=true; } syncModalOpen(); }
 function syncModalOpen(){
-  const anyOpen = ["importModal","viewListModal","suppModal","listModal","confirmModal","calcModal","intelModal"].some(i=>{ const e=document.getElementById(i); return e && !e.hidden; });
+  const anyOpen = ["importModal","viewListModal","suppModal","listModal","confirmModal","calcModal","intelModal","catalogModal"].some(i=>{ const e=document.getElementById(i); return e && !e.hidden; });
   document.body.classList.toggle("modal-open", anyOpen);
 }
 
@@ -2693,8 +2740,111 @@ function copyGeneratedList(){
 }
 
 /* ============================================================
-   CONFIGURAÇÕES
+   CATÁLOGO PRO CLIENTE — marca produto por produto
    ============================================================ */
+let catalogSel = new Set();   // productKeys marcados
+let catalogFilter = "";
+
+function openCatalog(){
+  catalogSel = new Set();
+  catalogFilter = "";
+  $("#catalogSearch").value = "";
+  renderCatalogList();
+  openModal("catalogModal");
+}
+
+function catalogGroups(){
+  // todos os produtos Apple, ordenados por categoria e nome
+  const groups = groupedProducts();
+  const catRank = id => CATEGORIES.findIndex(c=>c.id===id);
+  const capRank = c=>({ "64GB":1,"128GB":2,"256GB":3,"512GB":4,"1TB":5,"2TB":6 }[c]||9);
+  return groups.slice().sort((a,b)=>
+    catRank(categoryOf(a.type))-catRank(categoryOf(b.type)) ||
+    a.name.localeCompare(b.name) ||
+    capRank(a.capacity)-capRank(b.capacity) ||
+    (a.color||"").localeCompare(b.color||"")
+  );
+}
+
+function renderCatalogList(){
+  const box = $("#catalogList");
+  let groups = catalogGroups();
+  if(catalogFilter){
+    const f = catalogFilter.toLowerCase();
+    groups = groups.filter(g=> (g.name+" "+g.capacity+" "+g.color+" "+g.condition).toLowerCase().includes(f));
+  }
+  if(groups.length===0){
+    box.innerHTML = `<div class="empty-hint" style="padding:24px">Nenhum aparelho encontrado.<br>Importe listas de fornecedores primeiro.</div>`;
+    updateCatalogCount();
+    return;
+  }
+  // agrupa por categoria
+  let html = "";
+  let lastCat = null;
+  groups.forEach(g=>{
+    const cat = categoryOf(g.type);
+    if(cat!==lastCat){
+      html += `<div class="catalog-cat">${categoryEmoji(cat)} ${categoryLabel(cat)}</div>`;
+      lastCat = cat;
+    }
+    const key = productKey(g);
+    const pix = pixPrice(sellPrice(g.cost));
+    const checked = catalogSel.has(key);
+    const sub = [g.capacity, g.color, g.condition!=="Novo"?g.condition:""].filter(Boolean).join(" · ");
+    html += `<label class="catalog-item ${checked?'on':''}">
+      <input type="checkbox" data-key="${key}" ${checked?'checked':''}>
+      <span class="ci2-info"><span class="ci2-name">${g.name}</span><span class="ci2-sub">${sub}</span></span>
+      <span class="ci2-price">R$ ${fmt(pix)}</span>
+    </label>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.onchange = ()=>{
+      if(cb.checked) catalogSel.add(cb.dataset.key); else catalogSel.delete(cb.dataset.key);
+      cb.closest(".catalog-item").classList.toggle("on", cb.checked);
+      updateCatalogCount();
+    };
+  });
+  updateCatalogCount();
+}
+
+function updateCatalogCount(){
+  const n = catalogSel.size;
+  $("#catalogCount").textContent = n + (n===1? " selecionado" : " selecionados");
+  const btn = $("#catalogCopy");
+  btn.disabled = n===0;
+  btn.style.opacity = n===0? ".5" : "1";
+}
+
+function buildCatalogText(){
+  const groups = groupedProducts().filter(g=> catalogSel.has(productKey(g)));
+  // ordena e agrupa por categoria
+  const catRank = id => CATEGORIES.findIndex(c=>c.id===id);
+  const capRank = c=>({ "64GB":1,"128GB":2,"256GB":3,"512GB":4,"1TB":5,"2TB":6 }[c]||9);
+  groups.sort((a,b)=>
+    catRank(categoryOf(a.type))-catRank(categoryOf(b.type)) ||
+    a.name.localeCompare(b.name) || capRank(a.capacity)-capRank(b.capacity)
+  );
+  let txt = "*Segue nossa disponibilidade:*\n";
+  let lastCat = null;
+  groups.forEach(g=>{
+    const cat = categoryOf(g.type);
+    if(cat!==lastCat){ txt += `\n*${categoryLabel(cat)}*\n`; lastCat = cat; }
+    const pix = pixPrice(sellPrice(g.cost));
+    txt += `${itemFullName(g)} — R$ ${fmt(pix)}\n`;
+  });
+  txt += `\nValores no PIX/à vista. Parcelamos no cartão.\nQualquer dúvida, estou à disposição! 🙂`;
+  return txt;
+}
+
+function copyCatalog(){
+  if(catalogSel.size===0){ toast("Marque ao menos um aparelho"); return; }
+  const txt = buildCatalogText();
+  const done = ()=>{ toast("Catálogo copiado ✅ Cole no WhatsApp"); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  } else fallbackCopy(txt,done);
+}
 /* ============================================================
    BACKUP — exportar/restaurar todos os dados
    ============================================================ */
@@ -2703,6 +2853,7 @@ function exportBackup(){
     const payload = {
       _app: "iTronic FastPrice",
       _versao: 1,
+      _appVersion: APP_VERSION,
       _data: new Date().toISOString(),
       dados: {
         suppliers: DB.suppliers || [],
@@ -2937,6 +3088,16 @@ $("#suppSave").onclick = ()=>{
 
 // ---- gerar lista de preços ----
 $("#genListBtn").onclick = openListModal;
+$("#catalogBtn").onclick = openCatalog;
+$("#catalogClose").onclick = ()=> closeModal("catalogModal");
+$("#catalogModal").onclick = e=>{ if(e.target.id==="catalogModal") closeModal("catalogModal"); };
+$("#catalogCopy").onclick = copyCatalog;
+$("#catalogSearch").oninput = (e)=>{ catalogFilter = e.target.value; renderCatalogList(); };
+$("#catAll").onclick = ()=>{
+  catalogGroups().forEach(g=>catalogSel.add(productKey(g)));
+  renderCatalogList();
+};
+$("#catNone").onclick = ()=>{ catalogSel.clear(); renderCatalogList(); };
 $("#calcManualBtn").onclick = openCalc;
 $("#calcClose").onclick = ()=> closeModal("calcModal");
 $("#calcModal").onclick = e=>{ if(e.target.id==="calcModal") closeModal("calcModal"); };
@@ -2988,6 +3149,7 @@ function renderWelcomeQuick(){
 }
 function showWelcome(){
   $("#welcomeGreet").textContent = greetingByHour();
+  const ver = $("#appVer"); if(ver) ver.textContent = APP_VERSION;
   renderWelcomeQuick();
   $("#viewWelcome").hidden = false;
 }
