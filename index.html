@@ -557,13 +557,13 @@
   .btn-primary.disabled{background:#D1D1D6;cursor:not-allowed}
 
   /* Config view */
-  .cfg-grid{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-  .cfg-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-  .cfg-row label{font-weight:700;font-size:16px}
-  .cfg-row .cfg-sub{font-size:12px;color:var(--gray);font-weight:500;display:block}
-  .cfg-row input{width:110px;text-align:right;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;font-weight:700;outline:none}
+  .cfg-grid{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+  .cfg-row{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .cfg-row label{font-weight:700;font-size:16px;line-height:1.3}
+  .cfg-row .cfg-sub{font-size:12px;color:var(--gray);font-weight:500;display:block;margin-top:3px}
+  .cfg-row input{width:100px;flex:none;text-align:right;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;font-weight:700;outline:none}
   .cfg-row input:focus{border-color:var(--green)}
-  .cfg-section{font-size:13px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:20px 4px 4px}
+  .cfg-section{font-size:13px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:26px 4px 6px}
 
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:16px;font-weight:700;z-index:200;transition:.3s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
   .toast.show{transform:translateX(-50%) translateY(0)}
@@ -737,7 +737,10 @@
 
   <!-- ============ VIEW: CONFIG ============ -->
   <div class="view" id="viewConfig" hidden>
-    <div class="section-title">⚙️ Configurações</div>
+    <div class="intel-head">
+      <button class="cat-back" id="configBack">‹ Voltar</button>
+      <div class="cat-title">⚙️ Configurações</div>
+    </div>
     <div class="cfg-grid" id="cfgGrid"></div>
   </div>
 
@@ -945,7 +948,7 @@ window.addEventListener("error", function(ev){
    iTronic FastPrice  — estado + persistência (localStorage)
    ============================================================ */
 const LS_KEY = "itronic_fastprice_v2";
-const APP_VERSION = "10.3.1";
+const APP_VERSION = "10.3.4";
 let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após carregar)
 
 /* ============================================================
@@ -2908,6 +2911,20 @@ function updateCatalogCount(){
   btn.style.opacity = n===0? ".5" : "1";
 }
 
+// monta o bloco de formas de pagamento a partir do preço à vista (PIX)
+// bloco de pagamento de UM produto: Pix/Dinheiro, Crédito, Crédito 12x, Crédito 21x
+function blocoPagamento(pix){
+  const cred1x = credit1xPrice(pix);
+  const p12 = calcParcel(pix, 12, 0, false);
+  const p21 = calcParcel(pix, 21, 0, false);
+  let t = "";
+  t += `Pix ou Dinheiro: *R$ ${fmt(pix)}*\n`;
+  t += `Crédito: *R$ ${fmt(cred1x)}*\n`;
+  t += `Crédito 12x de *R$ ${fmt(p12.parcela)}*\n`;
+  t += `Crédito 21x de *R$ ${fmt(p21.parcela)}*\n`;
+  return t;
+}
+
 function buildCatalogText(){
   if(catalogMode==="intelbras") return buildCatalogIntelbras();
   const groups = groupedProducts().filter(g=> catalogSel.has(productKey(g)));
@@ -2918,15 +2935,17 @@ function buildCatalogText(){
     catRank(categoryOf(a.type))-catRank(categoryOf(b.type)) ||
     a.name.localeCompare(b.name) || capRank(a.capacity)-capRank(b.capacity)
   );
-  let txt = "*Segue nossa disponibilidade:*\n";
+  let txt = "";
   let lastCat = null;
   groups.forEach(g=>{
     const cat = categoryOf(g.type);
-    if(cat!==lastCat){ txt += `\n*${categoryLabel(cat)}*\n`; lastCat = cat; }
+    if(cat!==lastCat){ txt += (txt?"\n":"") + `*${categoryLabel(cat).toUpperCase()}*\n\n`; lastCat = cat; }
     const pix = pixPrice(sellPrice(g.cost, categoryOf(g.type)));
-    txt += `${itemFullName(g)} — R$ ${fmt(pix)}\n`;
+    txt += `*${itemFullName(g)}*\n`;
+    txt += blocoPagamento(pix);
+    txt += `\n`;
   });
-  txt += `\nValores no PIX/à vista. Parcelamos no cartão.\nQualquer dúvida, estou à disposição! 🙂`;
+  txt += `Qualquer dúvida, estou à disposição! 🙂`;
   return txt;
 }
 
@@ -2934,15 +2953,17 @@ function buildCatalogIntelbras(){
   const items = (DB.intelbras||[]).filter(p=> catalogSel.has(p.id));
   const cats = {};
   items.forEach(p=>{ (cats[p.cat]=cats[p.cat]||[]).push(p); });
-  let txt = "*Segue nossa disponibilidade:*\n";
+  let txt = "";
   Object.keys(cats).forEach(cat=>{
-    txt += `\n*${cat}*\n`;
+    txt += (txt?"\n":"") + `*${cat.toUpperCase()}*\n\n`;
     cats[cat].forEach(p=>{
       const pix = pixPrice(sellPrice(p.cost, 'intelbras'));
-      txt += `${p.name}${p.detail?" ("+p.detail+")":""} — R$ ${fmt(pix)}\n`;
+      txt += `*${p.name}*${p.detail?"\n"+p.detail:""}\n`;
+      txt += blocoPagamento(pix);
+      txt += `\n`;
     });
   });
-  txt += `\nValores no PIX/à vista. Parcelamos no cartão.\nQualquer dúvida, estou à disposição! 🙂`;
+  txt += `Qualquer dúvida, estou à disposição! 🙂`;
   return txt;
 }
 
@@ -3312,6 +3333,7 @@ function hideWelcome(){ $("#viewWelcome").hidden = true; }
 $("#pickApple").onclick = ()=>{ hideWelcome(); showView("search"); setTimeout(()=>$("#searchInput").focus(),100); };
 $("#pickIntelbras").onclick = ()=>{ hideWelcome(); showView("intelbras"); };
 $("#intelBack").onclick = ()=>{ showWelcome(); };
+$("#configBack").onclick = ()=>{ showWelcome(); };
 $("#intelAddBtn").onclick = ()=> openIntelModal(null);
 $("#intelClose").onclick = ()=> closeModal("intelModal");
 $("#intelCancel").onclick = ()=> closeModal("intelModal");
