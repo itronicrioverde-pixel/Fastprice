@@ -305,6 +305,14 @@
   .reset-cfg-btn{border:1.5px solid var(--line);background:#fff;color:var(--gray);font-weight:700;font-size:14px;padding:12px 22px;border-radius:14px;cursor:pointer;font-family:inherit;transition:.12s}
   .reset-cfg-btn:hover{border-color:#E5484D;color:#E5484D}
   .bkp-wrap{margin-top:28px;border:1px solid var(--line);border-radius:16px;padding:18px}
+  .marg-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #F2F2F4}
+  .marg-label{font-size:15px;font-weight:700;color:var(--ink)}
+  .marg-controls{display:flex;align-items:center;gap:8px}
+  .marg-type{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+  .mt-btn{border:none;background:#fff;color:var(--gray);font-weight:800;font-size:14px;padding:8px 12px;cursor:pointer;font-family:inherit}
+  .mt-btn.on{background:var(--green);color:var(--green-ink)}
+  .marg-input{width:90px;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:16px;font-weight:700;font-family:inherit;text-align:right;outline:none}
+  .marg-input:focus{border-color:var(--green)}
   .bkp-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px}
   .bkp-sub{font-size:13px;color:var(--gray);line-height:1.4;margin-bottom:14px}
   .bkp-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -739,6 +747,7 @@
       <div class="cat-title">📡 Intelbras</div>
     </div>
     <button class="intel-add-btn" id="intelAddBtn">+ Adicionar produto</button>
+    <button class="gen-list-btn" id="intelCatalogBtn" style="margin-bottom:14px">📤 Enviar catálogo pro cliente</button>
     <div id="intelList"></div>
   </div>
 
@@ -936,7 +945,7 @@ window.addEventListener("error", function(ev){
    iTronic FastPrice  — estado + persistência (localStorage)
    ============================================================ */
 const LS_KEY = "itronic_fastprice_v2";
-const APP_VERSION = "10.2.2";
+const APP_VERSION = "10.3.1";
 let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após carregar)
 
 /* ============================================================
@@ -1064,12 +1073,23 @@ function setSyncStatus(st){
 }
 
 const DEFAULT_CFG = {
-  lucro: 700,        // lucro fixo em R$
+  lucro: 700,        // lucro fixo em R$ (usado como padrão quando a categoria não tem margem própria)
   imposto: 0,        // % imposto
   vista: 0,          // % desconto no PIX / à vista
   debito: 0,         // % taxa do débito (imposto + taxa maquininha)
   credito1x: 0,      // % taxa do crédito à vista (1x no crédito)
   arredondar: 5,     // arredonda pra terminar em 0 ou 5 (5) / 0 (10) / desliga (1)
+  // margem por categoria: {tipo:"fixo"|"perc", valor:number}
+  // fixo = soma R$ ao custo; perc = soma % do custo
+  margens: {
+    iphone:     {tipo:"fixo", valor:700},
+    ipad:       {tipo:"fixo", valor:700},
+    mac:        {tipo:"fixo", valor:1000},
+    watch:      {tipo:"fixo", valor:400},
+    airpods:    {tipo:"fixo", valor:200},
+    acessorios: {tipo:"fixo", valor:150},
+    intelbras:  {tipo:"fixo", valor:300}
+  },
   // juros por número de parcelas (1x até 21x), em %
   juros: {1:0, 2:0, 3:0, 4:0, 5:3.5, 6:4, 7:5, 8:6, 9:7, 10:7.9, 11:8.5, 12:9.9,
           13:10.5, 14:11, 15:12, 16:13, 17:14, 18:14.9, 19:15.5, 20:16.5, 21:17.9}
@@ -1586,9 +1606,21 @@ function round(v){
   return Math.round(v/step)*step;
 }
 // preço de venda base = custo + imposto% + lucro fixo, arredondado
-function sellPrice(cost){
+// margem de uma categoria (retorna o valor em R$ a somar ao custo)
+function margemDe(catId, cost){
+  const m = (DB.cfg.margens && DB.cfg.margens[catId]) ? DB.cfg.margens[catId] : null;
+  if(!m){
+    // sem margem de categoria: usa o lucro fixo antigo como padrão
+    return Number(DB.cfg.lucro)||0;
+  }
+  if(m.tipo==="perc") return cost * (Number(m.valor)||0)/100;
+  return Number(m.valor)||0; // fixo
+}
+// preço de venda. catId = categoria do produto (iphone, mac, intelbras...). 
+function sellPrice(cost, catId){
   const imp = cost * (DB.cfg.imposto/100);
-  let base = cost + imp + Number(DB.cfg.lucro);
+  const margem = margemDe(catId, cost);
+  let base = cost + imp + margem;
   return round(base);
 }
 // valor à vista / PIX (com desconto configurado)
@@ -1771,7 +1803,7 @@ function browseCategory(catId, cond){
     html += `<div class="empty-hint" style="padding:30px">Nenhum ${label.toLowerCase()} ${_browseCond==='Novo'?'novo':(_browseCond==='CPO'?'seminovo':'')} cadastrado ainda.</div>`;
   } else {
     html += `<div class="cat-items">` + groups.map(g=>{
-      const sell = sellPrice(g.cost);
+      const sell = sellPrice(g.cost, categoryOf(g.type));
       const pix = pixPrice(sell);
       const sub = [g.capacity, g.color, g.condition!=="Novo"?g.condition:""].filter(Boolean).join(" · ");
       return `<button class="cat-item" data-key="${productKey(g)}">
@@ -1871,7 +1903,7 @@ function renderFilter(){
         ${modelos.map(nm=>{
           // menor preço desse modelo pra mostrar de referência
           const offers = liveMatches.filter(m=>m.name===nm);
-          const min = Math.min.apply(null, offers.map(o=>sellPrice(o.cost)));
+          const min = Math.min.apply(null, offers.map(o=>sellPrice(o.cost, categoryOf(o.type))));
           return `<button class="model-pick-btn" data-model="${nm.replace(/"/g,'&quot;')}">
             <span class="mp-name">${nm}</span>
             <span class="mp-price">a partir de R$ ${fmt(min)}</span>
@@ -1948,7 +1980,7 @@ function renderFilter(){
         const cond=m.condition!=="Novo"?` · ${m.condition}`:"";
         return `<button class="filter-result-row" data-vkey="${productKey(m)}">
           <span class="frr-label">${label}${cond}</span>
-          <span class="frr-price">R$ ${fmt(sellPrice(m.cost))}</span>
+          <span class="frr-price">R$ ${fmt(sellPrice(m.cost, categoryOf(m.type)))}</span>
         </button>`;
       }).join("")}
     </div>`:""}
@@ -2001,7 +2033,7 @@ function renderResult(){
   const g = currentProduct;
   if(!g){ $("#result").hidden=true; return; }
   const best = g.offers[0];
-  const sell = sellPrice(g.cost);
+  const sell = sellPrice(g.cost, categoryOf(g.type));
 
   const others = g.offers.slice(1);
   const metaChips = [
@@ -2064,7 +2096,7 @@ function renderResult(){
       <summary>Como esse preço é formado</summary>
       <div class="calc-row"><span>Custo (fornecedor)</span><span>R$ ${fmt(g.cost)}</span></div>
       ${impostoRS>0? `<div class="calc-row"><span>Imposto (${DB.cfg.imposto}%)</span><span>+ R$ ${fmt(impostoRS)}</span></div>`:""}
-      <div class="calc-row"><span>Lucro fixo</span><span>+ R$ ${fmt(Number(DB.cfg.lucro))}</span></div>
+      <div class="calc-row"><span>Margem (${categoryLabel(categoryOf(g.type))})</span><span>+ R$ ${fmt(margemDe(categoryOf(g.type), g.cost))}</span></div>
       ${DB.cfg.arredondar>1? `<div class="calc-row calc-dim"><span>Arredondamento</span><span>term. em ${DB.cfg.arredondar==5?'0/5':DB.cfg.arredondar}</span></div>`:""}
       <div class="calc-row calc-total"><span>Preço de venda</span><span>R$ ${fmt(sell)}</span></div>
       ${descontoPixRS>0? `<div class="calc-row"><span>Desconto no PIX (${DB.cfg.vista}%)</span><span>− R$ ${fmt(descontoPixRS)}</span></div>
@@ -2149,7 +2181,7 @@ function renderResult(){
 // atualiza PIX, Débito, seletor e atalhos sem re-render total
 function refreshPayment(){
   const g = currentProduct; if(!g) return;
-  const sell = sellPrice(g.cost);
+  const sell = sellPrice(g.cost, categoryOf(g.type));
   const sel = calcParcel(sell, selectedN, entrada, jurosSobreTotal);
   const quick = calcParcels(sell, entrada, jurosSobreTotal);
 
@@ -2186,7 +2218,7 @@ function refreshPayment(){
 // ---- copiar orçamento ----
 function copyQuote(){
   const g = currentProduct; if(!g) return;
-  const sell = sellPrice(g.cost);
+  const sell = sellPrice(g.cost, categoryOf(g.type));
   const pix = pixPrice(sell);
   const debito = debitPrice(sell);
   const credito1x = credit1xPrice(sell);
@@ -2301,7 +2333,8 @@ function renderCalcResult(){
   const box = $("#calcResult");
   if(!box) return;
   if(cost < 50){ box.hidden = true; box.innerHTML=""; return; }
-  const sell = sellPrice(cost);
+  const catId = calcSel.model ? categoryOf(calcSel.model.type) : null;
+  const sell = sellPrice(cost, catId);
   const pix = pixPrice(sell);
   const debito = debitPrice(sell);
   const credito1x = credit1xPrice(sell);
@@ -2359,7 +2392,7 @@ function renderIntelbras(){
   Object.keys(cats).forEach(cat=>{
     html += `<div class="intel-cat-title">${cat}</div><div class="intel-items">`;
     cats[cat].forEach(p=>{
-      const pix = pixPrice(sellPrice(p.cost));
+      const pix = pixPrice(sellPrice(p.cost, 'intelbras'));
       const aberto = intelExpanded===p.id;
       html += `<div class="intel-item ${aberto?'open':''}">
         <button class="intel-item-head" data-id="${p.id}">
@@ -2402,7 +2435,7 @@ function renderIntelbras(){
 
 // monta o bloco de orçamento (PIX/débito/crédito/parcelas) de um produto
 function intelBudgetHtml(p){
-  const sell = sellPrice(p.cost);
+  const sell = sellPrice(p.cost, 'intelbras');
   const pix = pixPrice(sell), debito = debitPrice(sell), credito1x = credit1xPrice(sell);
   let parcelHtml = "";
   for(let n=2; n<=21; n++){
@@ -2462,7 +2495,7 @@ function saveIntel(){
 function intelCopy(id){
   const p = DB.intelbras.find(x=>x.id===id);
   if(!p) return;
-  const sell = sellPrice(p.cost);
+  const sell = sellPrice(p.cost, 'intelbras');
   const pix = pixPrice(sell), debito = debitPrice(sell), credito1x = credit1xPrice(sell);
   const p10 = calcParcel(sell, 10, 0, false), p12 = calcParcel(sell, 12, 0, false);
   let txt = `📡 ${p.name}\n`;
@@ -2478,6 +2511,7 @@ function intelCopy(id){
   } else fallbackCopy(txt, ()=>toast("Copiado ✅"));
 }
 let viewingSupplierId = null;
+let importingSupplierId = null;
 
 function renderSuppliers(){
   const grid = $("#suppGrid"); grid.innerHTML="";
@@ -2715,7 +2749,7 @@ function buildListText(groups, selCats){
       );
       block += "\n";
       catGroups.forEach(g=>{
-        const pix = pixPrice(sellPrice(g.cost));
+        const pix = pixPrice(sellPrice(g.cost, categoryOf(g.type)));
         block += `${itemFullName(g)} — R$ ${fmt(pix)},00\n`;
       });
     }
@@ -2757,10 +2791,12 @@ function copyGeneratedList(){
 /* ============================================================
    CATÁLOGO PRO CLIENTE — marca produto por produto
    ============================================================ */
-let catalogSel = new Set();   // productKeys marcados
+let catalogSel = new Set();   // ids/keys marcados
 let catalogFilter = "";
+let catalogMode = "apple";    // "apple" ou "intelbras"
 
-function openCatalog(){
+function openCatalog(mode){
+  catalogMode = mode || "apple";
   catalogSel = new Set();
   catalogFilter = "";
   $("#catalogSearch").value = "";
@@ -2782,6 +2818,7 @@ function catalogGroups(){
 }
 
 function renderCatalogList(){
+  if(catalogMode==="intelbras") return renderCatalogIntelbras();
   const box = $("#catalogList");
   let groups = catalogGroups();
   if(catalogFilter){
@@ -2803,7 +2840,7 @@ function renderCatalogList(){
       lastCat = cat;
     }
     const key = productKey(g);
-    const pix = pixPrice(sellPrice(g.cost));
+    const pix = pixPrice(sellPrice(g.cost, categoryOf(g.type)));
     const checked = catalogSel.has(key);
     const sub = [g.capacity, g.color, g.condition!=="Novo"?g.condition:""].filter(Boolean).join(" · ");
     html += `<label class="catalog-item ${checked?'on':''}">
@@ -2811,6 +2848,46 @@ function renderCatalogList(){
       <span class="ci2-info"><span class="ci2-name">${g.name}</span><span class="ci2-sub">${sub}</span></span>
       <span class="ci2-price">R$ ${fmt(pix)}</span>
     </label>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.onchange = ()=>{
+      if(cb.checked) catalogSel.add(cb.dataset.key); else catalogSel.delete(cb.dataset.key);
+      cb.closest(".catalog-item").classList.toggle("on", cb.checked);
+      updateCatalogCount();
+    };
+  });
+  updateCatalogCount();
+}
+
+// lista do catálogo Intelbras (produtos cadastrados manualmente)
+function renderCatalogIntelbras(){
+  const box = $("#catalogList");
+  let items = (DB.intelbras||[]).slice();
+  if(catalogFilter){
+    const f = catalogFilter.toLowerCase();
+    items = items.filter(p=> (p.name+" "+(p.detail||"")+" "+p.cat).toLowerCase().includes(f));
+  }
+  if(items.length===0){
+    box.innerHTML = `<div class="empty-hint" style="padding:24px">Nenhum produto Intelbras cadastrado.</div>`;
+    updateCatalogCount();
+    return;
+  }
+  // agrupa por categoria
+  const cats = {};
+  items.forEach(p=>{ (cats[p.cat]=cats[p.cat]||[]).push(p); });
+  let html = "";
+  Object.keys(cats).forEach(cat=>{
+    html += `<div class="catalog-cat">${cat}</div>`;
+    cats[cat].forEach(p=>{
+      const pix = pixPrice(sellPrice(p.cost, 'intelbras'));
+      const checked = catalogSel.has(p.id);
+      html += `<label class="catalog-item ${checked?'on':''}">
+        <input type="checkbox" data-key="${p.id}" ${checked?'checked':''}>
+        <span class="ci2-info"><span class="ci2-name">${p.name}</span>${p.detail?`<span class="ci2-sub">${p.detail}</span>`:""}</span>
+        <span class="ci2-price">R$ ${fmt(pix)}</span>
+      </label>`;
+    });
   });
   box.innerHTML = html;
   box.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
@@ -2832,6 +2909,7 @@ function updateCatalogCount(){
 }
 
 function buildCatalogText(){
+  if(catalogMode==="intelbras") return buildCatalogIntelbras();
   const groups = groupedProducts().filter(g=> catalogSel.has(productKey(g)));
   // ordena e agrupa por categoria
   const catRank = id => CATEGORIES.findIndex(c=>c.id===id);
@@ -2845,15 +2923,31 @@ function buildCatalogText(){
   groups.forEach(g=>{
     const cat = categoryOf(g.type);
     if(cat!==lastCat){ txt += `\n*${categoryLabel(cat)}*\n`; lastCat = cat; }
-    const pix = pixPrice(sellPrice(g.cost));
+    const pix = pixPrice(sellPrice(g.cost, categoryOf(g.type)));
     txt += `${itemFullName(g)} — R$ ${fmt(pix)}\n`;
   });
   txt += `\nValores no PIX/à vista. Parcelamos no cartão.\nQualquer dúvida, estou à disposição! 🙂`;
   return txt;
 }
 
+function buildCatalogIntelbras(){
+  const items = (DB.intelbras||[]).filter(p=> catalogSel.has(p.id));
+  const cats = {};
+  items.forEach(p=>{ (cats[p.cat]=cats[p.cat]||[]).push(p); });
+  let txt = "*Segue nossa disponibilidade:*\n";
+  Object.keys(cats).forEach(cat=>{
+    txt += `\n*${cat}*\n`;
+    cats[cat].forEach(p=>{
+      const pix = pixPrice(sellPrice(p.cost, 'intelbras'));
+      txt += `${p.name}${p.detail?" ("+p.detail+")":""} — R$ ${fmt(pix)}\n`;
+    });
+  });
+  txt += `\nValores no PIX/à vista. Parcelamos no cartão.\nQualquer dúvida, estou à disposição! 🙂`;
+  return txt;
+}
+
 function copyCatalog(){
-  if(catalogSel.size===0){ toast("Marque ao menos um aparelho"); return; }
+  if(catalogSel.size===0){ toast("Marque ao menos um produto"); return; }
   const txt = buildCatalogText();
   const done = ()=>{ toast("Catálogo copiado ✅ Cole no WhatsApp"); };
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -2936,7 +3030,6 @@ function renderConfig(){
   const grid = $("#cfgGrid");
   const rows = [
     {sec:"Preço de venda"},
-    {k:"lucro", label:"Lucro fixo", sub:"R$ somado a cada produto"},
     {k:"imposto", label:"Imposto", sub:"% sobre o custo"},
     {sec:"À vista / PIX"},
     {k:"vista", label:"Desconto no PIX", sub:"% de desconto no pagamento à vista"},
@@ -2955,6 +3048,50 @@ function renderConfig(){
       <input type="number" inputmode="decimal" data-k="${r.k}" value="${DB.cfg[r.k]}">`;
     const inp = row.querySelector("input");
     inp.oninput = ()=>{ DB.cfg[r.k] = parseFloat(inp.value||"0")||0; save(); if(currentProduct) renderResult(); };
+    grid.appendChild(row);
+  });
+
+  // ===== Margem por categoria =====
+  const margSec = document.createElement("div"); margSec.className="cfg-section";
+  margSec.innerHTML = `Margem por categoria <span class="cfg-sub" style="text-transform:none;letter-spacing:0">Quanto você ganha em cada tipo de produto</span>`;
+  grid.appendChild(margSec);
+
+  const cats = [
+    {id:"iphone", label:"📱 iPhones"},
+    {id:"ipad", label:"🖥️ iPads"},
+    {id:"mac", label:"💻 Macs"},
+    {id:"watch", label:"⌚ Apple Watch"},
+    {id:"airpods", label:"🎧 AirPods"},
+    {id:"acessorios", label:"🖊️ Acessórios"},
+    {id:"intelbras", label:"📡 Intelbras"}
+  ];
+  if(!DB.cfg.margens) DB.cfg.margens = {};
+  cats.forEach(cat=>{
+    const m = DB.cfg.margens[cat.id] || {tipo:"fixo", valor:0};
+    if(!DB.cfg.margens[cat.id]) DB.cfg.margens[cat.id] = m;
+    const row = document.createElement("div");
+    row.className = "marg-row";
+    row.innerHTML = `
+      <span class="marg-label">${cat.label}</span>
+      <div class="marg-controls">
+        <div class="marg-type">
+          <button class="mt-btn ${m.tipo==='fixo'?'on':''}" data-cat="${cat.id}" data-tipo="fixo">R$</button>
+          <button class="mt-btn ${m.tipo==='perc'?'on':''}" data-cat="${cat.id}" data-tipo="perc">%</button>
+        </div>
+        <input type="number" inputmode="decimal" class="marg-input" data-cat="${cat.id}" value="${m.valor}">
+      </div>`;
+    // troca tipo R$/%
+    row.querySelectorAll(".mt-btn").forEach(btn=>{
+      btn.onclick = ()=>{
+        DB.cfg.margens[cat.id].tipo = btn.dataset.tipo;
+        save();
+        row.querySelectorAll(".mt-btn").forEach(x=>x.classList.toggle("on", x.dataset.tipo===btn.dataset.tipo));
+        if(currentProduct) renderResult();
+      };
+    });
+    // muda valor
+    const inp = row.querySelector(".marg-input");
+    inp.oninput = ()=>{ DB.cfg.margens[cat.id].valor = parseFloat(inp.value||"0")||0; save(); if(currentProduct) renderResult(); };
     grid.appendChild(row);
   });
 
@@ -3103,13 +3240,15 @@ $("#suppSave").onclick = ()=>{
 
 // ---- gerar lista de preços ----
 $("#genListBtn").onclick = openListModal;
-$("#catalogBtn").onclick = openCatalog;
+$("#catalogBtn").onclick = ()=> openCatalog("apple");
+$("#intelCatalogBtn").onclick = ()=> openCatalog("intelbras");
 $("#catalogClose").onclick = ()=> closeModal("catalogModal");
 $("#catalogModal").onclick = e=>{ if(e.target.id==="catalogModal") closeModal("catalogModal"); };
 $("#catalogCopy").onclick = copyCatalog;
 $("#catalogSearch").oninput = (e)=>{ catalogFilter = e.target.value; renderCatalogList(); };
 $("#catAll").onclick = ()=>{
-  catalogGroups().forEach(g=>catalogSel.add(productKey(g)));
+  if(catalogMode==="intelbras"){ (DB.intelbras||[]).forEach(p=>catalogSel.add(p.id)); }
+  else { catalogGroups().forEach(g=>catalogSel.add(productKey(g))); }
   renderCatalogList();
 };
 $("#catNone").onclick = ()=>{ catalogSel.clear(); renderCatalogList(); };
