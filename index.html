@@ -913,9 +913,14 @@
 <script>
 "use strict";
 
-// Escudo: se qualquer erro travar o carregamento, mostra na tela em vez de ficar branco
+// Escudo: se um erro REAL travar o carregamento, mostra na tela em vez de ficar branco.
+// Ignora "Script error." genérico (vem de scripts externos como o Firebase e NÃO trava o app).
 window.addEventListener("error", function(ev){
   try{
+    var msg = (ev && ev.message) ? String(ev.message) : "";
+    // erros de recurso externo (script/img que não carregou) ou "Script error." sem linha: ignora
+    var semDetalhe = (!ev.lineno && (!ev.filename || ev.filename===""));
+    if(msg.indexOf("Script error")!==-1 || semDetalhe) return;
     var box = document.getElementById("__errbox");
     if(!box){
       box = document.createElement("div");
@@ -925,13 +930,13 @@ window.addEventListener("error", function(ev){
     }
     box.textContent = "⚠️ Erro: " + (ev.message||ev.error) + "\n" + (ev.filename||"") + " linha " + (ev.lineno||"?");
   }catch(_){}
-});
+}, true);
 
 /* ============================================================
    iTronic FastPrice  — estado + persistência (localStorage)
    ============================================================ */
 const LS_KEY = "itronic_fastprice_v2";
-const APP_VERSION = "10.2.0";
+const APP_VERSION = "10.2.2";
 let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após carregar)
 
 /* ============================================================
@@ -942,13 +947,13 @@ let RUNTIME_DICT = {}; // aprendizados de normalização (espelha DB.dict após 
    Assim que você colar as chaves certas, passa a sincronizar sozinho.
    ============================================================ */
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyBT2CuDT7ASbBztWIeq9v5PBGbLnSdWO2A",
-  authDomain:        "itronic-fast-price.firebaseapp.com",
-  databaseURL:       "https://itronic-fast-price-default-rtdb.firebaseio.com",
-  projectId:         "itronic-fast-price",
-  storageBucket:     "itronic-fast-price.firebasestorage.app",
-  messagingSenderId: "398375931107",
-  appId:             "1:398375931107:web:63bde9595a181e66e189d6"
+  apiKey:            "AIzaSyAXXLQPDIS9P0EddKlBPo-vT1KWxfn3_U0",
+  authDomain:        "itronicfastprice.firebaseapp.com",
+  databaseURL:       "https://itronicfastprice-default-rtdb.firebaseio.com",
+  projectId:         "itronicfastprice",
+  storageBucket:     "itronicfastprice.firebasestorage.app",
+  messagingSenderId: "858497075182",
+  appId:             "1:858497075182:web:f19dacc6292d8bbdbfb0ff"
 };
 // "sala" compartilhada — você e o sócio precisam usar a MESMA palavra aqui
 const FIREBASE_SALA = "itronic-loja";
@@ -1005,11 +1010,21 @@ async function initFirebase(){
         // nuvem vazia: manda o que temos localmente pra "semear"
         pushToFirebase();
       }
-    }, (err)=>{ setSyncStatus("offline"); });
+    }, (err)=>{
+      // erro ao escutar (permissão, rede): fica em modo local, sem travar
+      _fbReady = false;
+      setSyncStatus("offline");
+    });
   }catch(e){
+    // falha ao carregar o SDK ou conectar: modo local, app segue funcionando
+    _fbReady = false;
     setSyncStatus("offline");
   }
 }
+// se o import do SDK (promise) falhar fora do try, não deixa virar erro na tela
+window.addEventListener("unhandledrejection", function(ev){
+  try{ setSyncStatus("offline"); }catch(_){}
+});
 let _fb = null;
 
 function pushToFirebase(){
